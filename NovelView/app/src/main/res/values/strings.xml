@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">NovelView</string>
+    <string name="nextChapter">下一章</string>
+    <string name="lastChapter">上一章</string>
 </resources>

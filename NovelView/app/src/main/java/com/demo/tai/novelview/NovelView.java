@@ -6,13 +6,25 @@ import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.LayoutAnimationController;
+import android.view.animation.TranslateAnimation;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -211,9 +223,22 @@ public class NovelView extends RelativeLayout {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if(event.getAction()==MotionEvent.ACTION_UP){
 
-            Toast.makeText(getContext(),"asdasd",Toast.LENGTH_SHORT).show();
+
+        if(event.getAction()==MotionEvent.ACTION_UP) {
+//            LayoutInflater layoutInflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//            View view = layoutInflater.inflate(R.layout.bottom_menu_popupwindow,null);
+//            LinearLayout layout = (LinearLayout)view.findViewById(R.id.layout);
+//
+//            TranslateAnimation ta = new TranslateAnimation(0,0,100,0);
+//            ta.setDuration(1000);
+//            LayoutAnimationController lac = new LayoutAnimationController(ta,0);
+//            layout.setLayoutAnimation(lac);
+//            layout.startLayoutAnimation();
+           NovelView novelView = new NovelView(getContext());
+            showTopMenu(novelView);
+            showBottomMenu(novelView);
+
         }
         return super.onTouchEvent(event);
     }
@@ -412,6 +437,38 @@ public class NovelView extends RelativeLayout {
         public void run() {
             handler.sendMessage(handler.obtainMessage());
         }
+
+    }
+
+    /**
+     * 顶部弹出菜单
+     */
+    private void showTopMenu(View v){
+        LayoutInflater layoutInflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = layoutInflater.inflate(R.layout.top_menu_popupwindow,null);
+
+        PopupWindow popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(0xb00000));
+        popupWindow.setAnimationStyle(R.style.toppopwindow_anim_style);
+        popupWindow.showAtLocation(v,Gravity.TOP,60,60);
+    }
+
+    /**
+     * 底部弹出菜单
+     */
+    private void showBottomMenu(View v){
+
+        LayoutInflater layoutInflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = layoutInflater.inflate(R.layout.bottom_menu_popupwindow,null);
+
+        PopupWindow popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        popupWindow.setFocusable(true);
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setBackgroundDrawable(new ColorDrawable(0xb00000));
+        popupWindow.setAnimationStyle(R.style.buttompopwindow_anim_style);
+        popupWindow.showAtLocation(v,Gravity.BOTTOM,0,0);
 
     }
 }
