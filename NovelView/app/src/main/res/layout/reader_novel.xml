@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="@color/daytimeReader"
    >
 
     <TextView
@@ -12,8 +12,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="60dp"
         android:padding="10dp"
-        android:textColor="#000000"
-        android:textSize="22sp" />
+        android:textColor="@color/daytimeFontColor"
+        android:textSize="20sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,7 +27,7 @@
             android:id="@+id/index"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#000000"
+            android:textColor="@color/daytimeFontColor"
             android:textSize="20sp"
             android:text="40"
             />
@@ -36,12 +36,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
-            android:text="/"/>
+            android:text="/"
+            android:textColor="@color/daytimeFontColor"/>
         <TextView
             android:id="@+id/sum"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="200"
+            android:textColor="@color/daytimeFontColor"
             android:textSize="20sp"
 
             />

@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
@@ -77,7 +79,11 @@ public class NovelView extends RelativeLayout {
      */
     private int mEvents;
 
+    NovelView novelView;
+
     public void setAdapter(NovelViewAdapter adapter) {
+        novelView = new NovelView(getContext());
+
         removeAllViews();
         this.adapter = adapter;
         prePage = adapter.getView();
@@ -218,6 +224,7 @@ public class NovelView extends RelativeLayout {
 
     /**
      * 屏幕点击
+     *
      * @param event
      * @return
      */
@@ -225,21 +232,6 @@ public class NovelView extends RelativeLayout {
     public boolean onTouchEvent(MotionEvent event) {
 
 
-        if(event.getAction()==MotionEvent.ACTION_UP) {
-//            LayoutInflater layoutInflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//            View view = layoutInflater.inflate(R.layout.bottom_menu_popupwindow,null);
-//            LinearLayout layout = (LinearLayout)view.findViewById(R.id.layout);
-//
-//            TranslateAnimation ta = new TranslateAnimation(0,0,100,0);
-//            ta.setDuration(1000);
-//            LayoutAnimationController lac = new LayoutAnimationController(ta,0);
-//            layout.setLayoutAnimation(lac);
-//            layout.startLayoutAnimation();
-           NovelView novelView = new NovelView(getContext());
-            showTopMenu(novelView);
-            showBottomMenu(novelView);
-
-        }
         return super.onTouchEvent(event);
     }
 
@@ -257,34 +249,53 @@ public class NovelView extends RelativeLayout {
         super(context, attrs, defStyleAttr);
         init();
     }
-
+    int i = 0;//点击的单双数来判断是弹出还是消失
     @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        int width = wm.getDefaultDisplay().getWidth();
+        int height = wm.getDefaultDisplay().getHeight();
+
+        boolean isMove = false;
+
+
+        Log.i("onTouchEvent", "屏幕宽度：" + width + "  屏幕高度：" + height);
+
         if (adapter != null)
-            switch (ev.getActionMasked()) {
+            switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
-                    lastX = ev.getX();
+                    i++;
+                    lastX = event.getX();
                     if (velocityTracker == null) {
                         velocityTracker = VelocityTracker.obtain();
                     } else {
                         velocityTracker.clear();
                     }
-                    velocityTracker.addMovement(ev);
+                    velocityTracker.addMovement(event);
                     mEvents = 0;
+
+                    if (!isMove) {
+                        if (event.getX() > width / 3 && event.getX() < width * 2 / 3) {
+                            showBottomMenu();
+                            showTopMenu();
+                        }
+                    }
+                    Log.i("index", isMove + "，i="+i);
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
                 case MotionEvent.ACTION_POINTER_UP:
                     mEvents = -1;
                     break;
                 case MotionEvent.ACTION_MOVE:
+                    isMove = true;
                     //取消动画
                     quitMove();
                     Log.d("index", "mEvent = " + mEvents + ",isPreMoving = " + isPreMoving + ",isCurrMoving = "
-                            + isCurrMoving);
-                    velocityTracker.addMovement(ev);
+                            + isCurrMoving + ",isMove:" + isMove);
+                    velocityTracker.addMovement(event);
                     velocityTracker.computeCurrentVelocity(500);
                     speed = velocityTracker.getXVelocity();
-                    moveLenght = ev.getX() - lastX;
+                    moveLenght = event.getX() - lastX;
                     if ((moveLenght > 0 || !isCurrMoving) && isPreMoving
                             && mEvents == 0) {
                         isPreMoving = true;
@@ -331,7 +342,7 @@ public class NovelView extends RelativeLayout {
 
                     } else
                         mEvents = 0;
-                    lastX = ev.getX();
+                    lastX = event.getX();
                     requestLayout();
                     break;
                 case MotionEvent.ACTION_UP:
@@ -346,16 +357,18 @@ public class NovelView extends RelativeLayout {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+
+
                     break;
                 default:
                     break;
             }
-        super.dispatchTouchEvent(ev);
+        super.dispatchTouchEvent(event);
         return true;
     }
+
     @Override
-    protected void dispatchDraw(Canvas canvas)
-    {
+    protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
         if (right == 0 || right == mWidth)
             return;
@@ -370,13 +383,11 @@ public class NovelView extends RelativeLayout {
     }
 
     @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-    {
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mWidth = getMeasuredWidth();
         mHeight = getMeasuredHeight();
-        if (isInit)
-        {
+        if (isInit) {
             // 初始状态，一页放在左边隐藏起来，两页叠在一块
             prePageLeft = -mWidth;
             currPageLeft = 0;
@@ -386,8 +397,7 @@ public class NovelView extends RelativeLayout {
     }
 
     @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b)
-    {
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
         if (adapter == null)
             return;
         prePage.layout(prePageLeft, 0,
@@ -443,32 +453,35 @@ public class NovelView extends RelativeLayout {
     /**
      * 顶部弹出菜单
      */
-    private void showTopMenu(View v){
-        LayoutInflater layoutInflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = layoutInflater.inflate(R.layout.top_menu_popupwindow,null);
+    private void showTopMenu() {
+        LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = layoutInflater.inflate(R.layout.top_menu_popupwindow, null);
 
-        PopupWindow popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
+        PopupWindow popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,true);
         popupWindow.setBackgroundDrawable(new ColorDrawable(0xb00000));
         popupWindow.setAnimationStyle(R.style.toppopwindow_anim_style);
-        popupWindow.showAtLocation(v,Gravity.TOP,60,60);
+        popupWindow.showAtLocation(novelView, Gravity.TOP, 0, 0);
+        view.setAlpha(0.9F);
+        popupWindow.update();
     }
 
     /**
      * 底部弹出菜单
      */
-    private void showBottomMenu(View v){
+    private void showBottomMenu() {
 
-        LayoutInflater layoutInflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = layoutInflater.inflate(R.layout.bottom_menu_popupwindow,null);
+        LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = layoutInflater.inflate(R.layout.bottom_menu_popupwindow, null);
 
-        PopupWindow popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        popupWindow.setFocusable(true);
-        popupWindow.setOutsideTouchable(true);
+
+        PopupWindow popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
         popupWindow.setBackgroundDrawable(new ColorDrawable(0xb00000));
         popupWindow.setAnimationStyle(R.style.buttompopwindow_anim_style);
-        popupWindow.showAtLocation(v,Gravity.BOTTOM,0,0);
+        popupWindow.showAtLocation(novelView, Gravity.BOTTOM, 0, 0);
+        view.setAlpha(0.9F);
+        popupWindow.update();
+
 
     }
 }
