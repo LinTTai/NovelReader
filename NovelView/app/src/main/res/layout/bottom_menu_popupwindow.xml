@@ -57,30 +57,35 @@
            >
 
             <ImageView
+                android:id="@+id/set_font"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="35dp"
                 android:src="@mipmap/iconfont_zitidaxiao"
                 android:layout_column="0"/>
             <ImageView
+                android:id="@+id/luminance"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@mipmap/iconfont_zitidaxiao"
+                android:src="@mipmap/iconfont_liangdu"
                 android:layout_column="1"/>
             <ImageView
+                android:id="@+id/directory"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@mipmap/iconfont_zitidaxiao"
+                android:src="@mipmap/iconfont_mulu"
                 android:layout_column="2"/>
             <ImageView
+                android:id="@+id/more"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@mipmap/iconfont_zitidaxiao"
+                android:src="@mipmap/iconfon_gengduo"
                 android:layout_column="3"/>
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="5dp"
             android:layout_column="0"
          >
 
@@ -94,19 +99,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="设置"
+                android:text="亮度"
                 android:textColor="@color/menuFontColor"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="设置"
+                android:text="目录"
                 android:textColor="@color/menuFontColor"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="设置"
+                android:text="更多"
                 android:textColor="@color/menuFontColor"/>
         </TableRow>
 
