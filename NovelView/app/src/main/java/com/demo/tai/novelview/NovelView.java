@@ -222,6 +222,11 @@ public class NovelView extends RelativeLayout {
 
     };
 
+    boolean isOpen = false;//判断是否第二次屏幕点击
+    WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+    int width = wm.getDefaultDisplay().getWidth();
+    boolean isMove = false;//判断是否手势移动
+
     /**
      * 屏幕点击
      *
@@ -230,9 +235,29 @@ public class NovelView extends RelativeLayout {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                if (isOpen) {
+                    topPopupWindow.dismiss();
+                    bottomPopupWindow.dismiss();
+                    isOpen = false;
+                } else {
+                    if (!isMove) {
+                        if (event.getX() > width / 3 && event.getX() < width * 2 / 3) {
+                            showBottomMenu();
+                            showTopMenu();
+                            isOpen = true;
+                        }
+                    }
+                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                isMove = true;
+                break;
+        }
 
         return super.onTouchEvent(event);
+
     }
 
     public NovelView(Context context) {
@@ -249,22 +274,12 @@ public class NovelView extends RelativeLayout {
         super(context, attrs, defStyleAttr);
         init();
     }
-    int i = 0;//点击的单双数来判断是弹出还是消失
+
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
-        int width = wm.getDefaultDisplay().getWidth();
-        int height = wm.getDefaultDisplay().getHeight();
-
-        boolean isMove = false;
-
-
-        Log.i("onTouchEvent", "屏幕宽度：" + width + "  屏幕高度：" + height);
-
         if (adapter != null)
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
-                    i++;
                     lastX = event.getX();
                     if (velocityTracker == null) {
                         velocityTracker = VelocityTracker.obtain();
@@ -273,21 +288,12 @@ public class NovelView extends RelativeLayout {
                     }
                     velocityTracker.addMovement(event);
                     mEvents = 0;
-
-                    if (!isMove) {
-                        if (event.getX() > width / 3 && event.getX() < width * 2 / 3) {
-                            showBottomMenu();
-                            showTopMenu();
-                        }
-                    }
-                    Log.i("index", isMove + "，i="+i);
                     break;
                 case MotionEvent.ACTION_POINTER_DOWN:
                 case MotionEvent.ACTION_POINTER_UP:
                     mEvents = -1;
                     break;
                 case MotionEvent.ACTION_MOVE:
-                    isMove = true;
                     //取消动画
                     quitMove();
                     Log.d("index", "mEvent = " + mEvents + ",isPreMoving = " + isPreMoving + ",isCurrMoving = "
@@ -453,34 +459,36 @@ public class NovelView extends RelativeLayout {
     /**
      * 顶部弹出菜单
      */
-    private void showTopMenu() {
-        LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = layoutInflater.inflate(R.layout.top_menu_popupwindow, null);
+    LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    View view = layoutInflater.inflate(R.layout.bottom_menu_popupwindow, null);
 
-        PopupWindow popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT,true);
-        popupWindow.setBackgroundDrawable(new ColorDrawable(0xb00000));
-        popupWindow.setAnimationStyle(R.style.toppopwindow_anim_style);
-        popupWindow.showAtLocation(novelView, Gravity.TOP, 0, 0);
+    PopupWindow bottomPopupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+    View view1 = layoutInflater.inflate(R.layout.top_menu_popupwindow, null);
+
+    PopupWindow topPopupWindow = new PopupWindow(view1, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+
+    private void showTopMenu() {
+        topPopupWindow.setBackgroundDrawable(new ColorDrawable(0xb00000));
+        topPopupWindow.setFocusable(false);
+        topPopupWindow.setAnimationStyle(R.style.toppopwindow_anim_style);
+        topPopupWindow.showAtLocation(novelView, Gravity.TOP, 0, 0);
         view.setAlpha(0.9F);
-        popupWindow.update();
+        topPopupWindow.update();
     }
 
     /**
      * 底部弹出菜单
      */
+
     private void showBottomMenu() {
 
-        LayoutInflater layoutInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = layoutInflater.inflate(R.layout.bottom_menu_popupwindow, null);
-
-
-        PopupWindow popupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
-
-        popupWindow.setBackgroundDrawable(new ColorDrawable(0xb00000));
-        popupWindow.setAnimationStyle(R.style.buttompopwindow_anim_style);
-        popupWindow.showAtLocation(novelView, Gravity.BOTTOM, 0, 0);
+        bottomPopupWindow.setBackgroundDrawable(new ColorDrawable(0xb00000));
+        bottomPopupWindow.setFocusable(false);
+        bottomPopupWindow.setAnimationStyle(R.style.buttompopwindow_anim_style);
+        bottomPopupWindow.showAtLocation(novelView, Gravity.BOTTOM, 0, 0);
         view.setAlpha(0.9F);
-        popupWindow.update();
+        bottomPopupWindow.update();
 
 
     }
